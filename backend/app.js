@@ -1,6 +1,8 @@
 const express = require('express');
+const helmet = require("helmet");
 const mongoose = require('mongoose');
 const path = require('path');
+
 require ("dotenv").config();
 
 const userRoutes = require('./routes/user');
@@ -13,6 +15,7 @@ mongoose.connect(`mongodb+srv://${process.env.DB_ID}:${process.env.DB_PASSWORD}@
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 
 const app = express();
+app.use(helmet());
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
