@@ -35,7 +35,6 @@ app.use(helmet());
 // - req.params
 // - req.headers
 // - req.query
-
 // To remove data using these defaults:
 app.use(mongoSanitize());
 
