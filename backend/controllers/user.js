@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt'); // Encrypts the password sent to the database
 const jwt = require('jsonwebtoken');
 const passwordValidator = require('password-validator'); // A library to simplify the rules of password validation, by taking away all the repeated parts and by providing a readable and maintainable API to use
+const emailValidator = require("email-validator"); // Makes sure that the email address is valid
 const User = require('../models/User');
 
 
@@ -17,20 +18,24 @@ schemaPassword
 
 
 exports.signup = (req, res, next) => {
-  if (schemaPassword.validate(req.body.password)) {
-    bcrypt.hash(req.body.password, 10) // The password is encrypted with 10 salt rounds
-      .then(hash => {
-        const user = new User({
-          email: req.body.email,
-          password: hash
-        });
-        user.save()
-          .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
-          .catch(error => res.status(400).json({ error }));
-      })
-      .catch(error => res.status(500).json({ error }));
+  if(emailValidator.validate(req.body.email)) {
+    if (schemaPassword.validate(req.body.password)) {
+      bcrypt.hash(req.body.password, 10) // The password is encrypted with 10 salt rounds
+        .then(hash => {
+          const user = new User({
+            email: req.body.email,
+            password: hash
+          });
+          user.save()
+            .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
+            .catch(error => res.status(400).json({ error }));
+        })
+        .catch(error => res.status(500).json({ error }));
+    } else {
+      return res.status(401).json({message : `Le mot de passe doit contenir au moins 8 caractères et être composé d'au moins 1 majuscule, 1 minuscule et 1 chiffre.`});
+    }
   } else {
-    return res.status(401).json({message : `Le mot de passe doit contenir au moins 8 caractères et être composé d'au moins 1 majuscule, 1 minuscule et 1 chiffre.`});
+    return res.status(401).json({message : `L'adresse e-mail saisie est invalide. Veuillez entrer une adresse e-mail valide.`});
   }
 };
 
